@@ -8,9 +8,9 @@ const {
   call,
   cond,
   greaterThan,
+  greaterOrEq,
   multiply,
   block,
-  cos,
   event,
   divide,
   eq,
@@ -32,7 +32,7 @@ class CircleNavigation extends React.Component {
   isOpen = new Value(FALSE);
   childrenScale = new Value(1);
   radius = new Value(this.props.diameter / 2);
-  degrees = new Value(0);
+  degrees = new Value(-1);
 
   onGestureEvent = event([
     {
@@ -52,7 +52,7 @@ class CircleNavigation extends React.Component {
   ]);
 
   render() {
-    const {children, initialComponentScaleTo} = this.props;
+    const {children, initialComponentScaleTo, options} = this.props;
 
     return (
       <>
@@ -82,18 +82,19 @@ class CircleNavigation extends React.Component {
               set(this.childrenScale, initialComponentScaleTo),
               set(this.childrenScale, 1),
             ),
-            cond(
-              and(
-                eq(this.isOpen, TRUE),
-                greaterThan(
-                  sqrt(add(pow(this.touchX, 2), pow(this.touchY, 2))),
-                  multiply(this.radius, initialComponentScaleTo),
-                ),
-              ),
+
+            set(
+              this.degrees,
               cond(
-                greaterThan(this.touchY, 0),
-                set(
-                  this.degrees,
+                and(
+                  eq(this.isOpen, TRUE),
+                  greaterThan(
+                    sqrt(add(pow(this.touchX, 2), pow(this.touchY, 2))),
+                    multiply(this.radius, initialComponentScaleTo),
+                  ),
+                ),
+                cond(
+                  greaterOrEq(this.touchY, 0),
                   sub(
                     180,
                     divide(
@@ -101,18 +102,12 @@ class CircleNavigation extends React.Component {
                       Math.PI,
                     ),
                   ),
-                ),
-                cond(
-                  greaterThan(this.touchX, 0),
-                  set(
-                    this.degrees,
+                  cond(
+                    greaterOrEq(this.touchX, 0),
                     divide(
                       multiply(atan(divide(this.touchX, this.touchY)), -180),
                       Math.PI,
                     ),
-                  ),
-                  set(
-                    this.degrees,
                     sub(
                       360,
                       divide(
@@ -122,12 +117,12 @@ class CircleNavigation extends React.Component {
                     ),
                   ),
                 ),
+                -1,
               ),
-              set(this.degrees, 0),
             ),
 
             call([this.degrees], ([deg]) => {
-              console.log(deg);
+              console.log(Math.floor(deg / (360 / options.length)));
             }),
           ])}
         />

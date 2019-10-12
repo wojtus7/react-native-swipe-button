@@ -15,8 +15,7 @@ const App = () => {
             {text: 'RED'},
             {text: 'YELLOW'},
             {text: 'GREEN'},
-          ]}
-        >
+          ]}>
           <View style={styles.circle} />
         </CircleNavigation>
       </View>
