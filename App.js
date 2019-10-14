@@ -10,11 +10,36 @@ const App = () => {
           diameter={100}
           initialComponentScaleTo={0.8}
           options={[
-            {text: 'GRAY'},
-            {text: 'BLUE'},
-            {text: 'RED'},
-            {text: 'YELLOW'},
-            {text: 'GREEN'},
+            {
+              text: 'GRAY',
+              onSelect: () => {
+                console.log('GRAY');
+              },
+            },
+            {
+              text: 'BLUE',
+              onSelect: () => {
+                console.log('BLUE');
+              },
+            },
+            {
+              text: 'RED',
+              onSelect: () => {
+                console.log('RED');
+              },
+            },
+            {
+              text: 'YELLOW',
+              onSelect: () => {
+                console.log('YELLOW');
+              },
+            },
+            {
+              text: 'GREEN',
+              onSelect: () => {
+                console.log('GREEN');
+              },
+            },
           ]}>
           <View style={styles.circle} />
         </CircleNavigation>

@@ -13,6 +13,7 @@ const {
   block,
   event,
   divide,
+  or,
   eq,
   pow,
   atan,
@@ -21,7 +22,7 @@ const {
   set,
   Value,
 } = Animated;
-const {ACTIVE, CANCELLED, END, FAILED, UNDETERMINED} = State;
+const {ACTIVE, BEGAN, CANCELLED, END, FAILED, UNDETERMINED} = State;
 const TRUE = 1;
 const FALSE = 0;
 
@@ -75,55 +76,66 @@ class CircleNavigation extends React.Component {
         </PanGestureHandler>
         <Animated.Code
           exec={block([
-            cond(eq(this.gestureState, ACTIVE), set(this.isOpen, TRUE)),
+            cond(
+              or(eq(this.gestureState, ACTIVE), eq(this.gestureState, BEGAN)),
+              set(this.isOpen, TRUE),
+            ),
             cond(eq(END, this.gestureState), set(this.isOpen, FALSE)),
             cond(
-              eq(this.isOpen, TRUE),
-              set(this.childrenScale, initialComponentScaleTo),
-              set(this.childrenScale, 1),
+              eq(this.isOpen, FALSE),
+              call([this.degrees], ([deg]) => {
+                if (deg > 0) {
+                  options[Math.floor(deg / (360 / options.length))].onSelect();
+                }
+              }),
             ),
 
-            set(
-              this.degrees,
-              cond(
-                and(
-                  eq(this.isOpen, TRUE),
-                  greaterThan(
-                    sqrt(add(pow(this.touchX, 2), pow(this.touchY, 2))),
-                    multiply(this.radius, initialComponentScaleTo),
-                  ),
-                ),
+            cond(
+              eq(this.isOpen, TRUE),
+              set(
+                this.degrees,
                 cond(
-                  greaterOrEq(this.touchY, 0),
-                  sub(
-                    180,
-                    divide(
-                      multiply(atan(divide(this.touchX, this.touchY)), 180),
-                      Math.PI,
+                  and(
+                    eq(this.isOpen, TRUE),
+                    greaterThan(
+                      sqrt(add(pow(this.touchX, 2), pow(this.touchY, 2))),
+                      multiply(this.radius, initialComponentScaleTo),
                     ),
                   ),
                   cond(
-                    greaterOrEq(this.touchX, 0),
-                    divide(
-                      multiply(atan(divide(this.touchX, this.touchY)), -180),
-                      Math.PI,
-                    ),
+                    greaterOrEq(this.touchY, 0),
                     sub(
-                      360,
+                      180,
                       divide(
                         multiply(atan(divide(this.touchX, this.touchY)), 180),
                         Math.PI,
                       ),
                     ),
+                    cond(
+                      greaterOrEq(this.touchX, 0),
+                      divide(
+                        multiply(atan(divide(this.touchX, this.touchY)), -180),
+                        Math.PI,
+                      ),
+                      sub(
+                        360,
+                        divide(
+                          multiply(atan(divide(this.touchX, this.touchY)), 180),
+                          Math.PI,
+                        ),
+                      ),
+                    ),
                   ),
+                  -1,
                 ),
-                -1,
               ),
             ),
 
-            call([this.degrees], ([deg]) => {
-              console.log(Math.floor(deg / (360 / options.length)));
-            }),
+            cond(
+              eq(this.isOpen, TRUE),
+              set(this.childrenScale, initialComponentScaleTo),
+              set(this.childrenScale, 1),
+            ),
           ])}
         />
       </>
